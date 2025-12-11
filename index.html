@@ -42,6 +42,22 @@
 
       <hr/>
 
+      <h3>Nhiệm vụ Facebook</h3>
+      <p class="small">
+        1. Bấm mở trang Facebook:
+        <a href="https://www.facebook.com/tuoitreitqnu" target="_blank" style="color:#60a5fa;">
+          Tuổi trẻ ITQNU
+        </a><br/>
+        2. Tìm số điện thoại của trang và nhập vào ô bên dưới.<br/>
+        3. Nhập đúng số điện thoại <b>0256 3646 072</b> thì nhiệm vụ được đánh dấu là hoàn thành.
+      </p>
+
+      <label>Số điện thoại của trang Facebook</label>
+      <input id="phoneInput" placeholder="Nhập số điện thoại, ví dụ: 0256 3646 072" />
+      <button id="completeTaskButton" disabled>Xác nhận nhiệm vụ Facebook</button>
+
+      <hr/>
+
       <h3>Chọn đội hình 1-4-3-3</h3>
       <p class="small">
         Chọn 1 GK, 4 DEF, 3 MID, 3 ATT. Các ô đã lọc đúng vị trí.
@@ -135,7 +151,7 @@
       Chỉ ví owner của contract mới gọi được các hàm này.
     </p>
 
-    <label>1️⃣ Xác nhận nhiệm vụ Facebook cho user</label>
+    <label>1️⃣ Xác nhận nhiệm vụ Facebook cho user (tùy chọn)</label>
     <input id="adminUserAddress" placeholder="Địa chỉ user cần setTaskCompleted" />
     <label>
       Trạng thái:
@@ -156,9 +172,8 @@
   </div>
 </div>
 
-<!-- 1) Thư viện ethers local -->
+<!-- 1) Thư viện ethers (dùng file local đã đặt cạnh index.html) -->
 <script src="ethers.umd.min.js"></script>
-
 <!-- 2) Code DApp -->
 <script src="app.js"></script>
 </body>
