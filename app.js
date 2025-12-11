@@ -408,3 +408,4 @@ window.addEventListener("load", () => {
   refreshLeadersButton.addEventListener("click", loadLeaderboard);
 });
 
+
