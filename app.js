@@ -1,5 +1,6 @@
 // Địa chỉ contract DreamTeamVote trên Sepolia
-const CONTRACT_ADDRESS = "0xEa947f66a874Aa907AdDaD0102e0230123c8B098";
+// 👉 NHỚ SỬA LẠI SAU KHI DEPLOY HỢP ĐỒNG MỚI
+const CONTRACT_ADDRESS = "0x058a918bC848FD3b6A0b3e270779C82EB193DeD7";
 
 // ABI rút gọn, chỉ các hàm giao diện cần dùng
 const CONTRACT_ABI = [
@@ -9,6 +10,7 @@ const CONTRACT_ABI = [
   "function owner() view returns (address)",
   "function taskCompleted(address user) view returns (bool)",
   "function setTaskCompleted(address user, bool completed)",
+  "function completeTask(string phone)",                // <-- hàm mới
   "function withdrawFees(address payable to)"
 ];
 
@@ -121,6 +123,9 @@ const buyTokenButton = document.getElementById("buyTokenButton");
 const voteButton = document.getElementById("voteButton");
 const userStatus = document.getElementById("userStatus");
 
+const phoneInput = document.getElementById("phoneInput");
+const completeTaskButton = document.getElementById("completeTaskButton");
+
 const adminUserAddress = document.getElementById("adminUserAddress");
 const adminTaskStatus = document.getElementById("adminTaskStatus");
 const setTaskButton = document.getElementById("setTaskButton");
@@ -187,6 +192,7 @@ async function connectWallet() {
     refreshInfoButton.disabled = false;
     setTaskButton.disabled = false;
     withdrawButton.disabled = false;
+    completeTaskButton.disabled = false;
 
     contractOwner = await contract.owner();
     walletInfo.textContent += "\nOwner contract: " + contractOwner;
@@ -206,7 +212,7 @@ async function refreshInfo() {
     tokenBalanceSpan.textContent = ethers.utils.formatUnits(balance, 18);
 
     const task = await contract.taskCompleted(currentAccount);
-    taskStatusSpan.textContent = task ? "Đã được admin xác nhận ✅" : "Chưa được xác nhận ❌";
+    taskStatusSpan.textContent = task ? "Đã được xác nhận ✅" : "Chưa được xác nhận ❌";
     taskStatusSpan.className = task ? "badge" : "";
   } catch (err) {
     console.error(err);
@@ -228,6 +234,28 @@ async function buyToken() {
   } catch (err) {
     console.error(err);
     userStatus.textContent = "Lỗi khi mua token: " + (err.message || err);
+  }
+}
+
+// ===== User: hoàn thành nhiệm vụ bằng số điện thoại =====
+async function userCompleteTask() {
+  if (!contract) return;
+  try {
+    const phone = phoneInput.value.trim();
+    if (!phone) {
+      userStatus.textContent = "Bạn phải nhập số điện thoại của trang Facebook.";
+      return;
+    }
+
+    userStatus.textContent = "Đang gửi giao dịch xác nhận nhiệm vụ...";
+    const tx = await contract.completeTask(phone);
+    await tx.wait();
+
+    userStatus.textContent = "Xác nhận nhiệm vụ thành công! Tx: " + tx.hash;
+    await refreshInfo();
+  } catch (err) {
+    console.error(err);
+    userStatus.textContent = "Lỗi khi xác nhận nhiệm vụ: " + (err.error?.message || err.message || err);
   }
 }
 
@@ -259,7 +287,6 @@ async function sendVote() {
     const ids = collectSelectedIds();
     userStatus.textContent = "Đang gửi giao dịch vote...";
 
-    // ethers v5 sẽ map array JS -> uint256[11]
     const tx = await contract.vote(ids);
     await tx.wait();
     userStatus.textContent = "Vote thành công! Tx: " + tx.hash;
@@ -270,7 +297,7 @@ async function sendVote() {
   }
 }
 
-// ===== Admin: setTaskCompleted =====
+// ===== Admin: setTaskCompleted (tùy chọn) =====
 async function adminSetTask() {
   if (!contract) return;
   try {
@@ -317,6 +344,7 @@ window.addEventListener("load", () => {
   connectButton.addEventListener("click", connectWallet);
   refreshInfoButton.addEventListener("click", refreshInfo);
   buyTokenButton.addEventListener("click", buyToken);
+  completeTaskButton.addEventListener("click", userCompleteTask);
   voteButton.addEventListener("click", sendVote);
   setTaskButton.addEventListener("click", adminSetTask);
   withdrawButton.addEventListener("click", adminWithdraw);
