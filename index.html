@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>DreamTeam Vote DApp</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="container">
+  <h1>⚽ DreamTeam Vote DApp</h1>
+
+  <!-- Kết nối ví -->
+  <div class="card">
+    <button id="connectButton">Kết nối MetaMask</button>
+    <div id="walletInfo" class="status"></div>
+  </div>
+
+  <div class="row">
+    <!-- Thông tin tài khoản -->
+    <div class="card">
+      <h2>Thông tin tài khoản</h2>
+      <div class="status">
+        <div><b>Địa chỉ:</b> <span id="accountAddress">Chưa kết nối</span></div>
+        <div><b>Mạng:</b> <span id="networkName">-</span></div>
+        <div><b>Số dư DTVT:</b> <span id="tokenBalance">0</span></div>
+        <div><b>Nhiệm vụ Facebook:</b>
+          <span id="taskStatus">Chưa kiểm tra</span>
+        </div>
+      </div>
+      <button id="refreshInfoButton" disabled>Cập nhật thông tin</button>
+    </div>
+
+    <!-- Người dùng -->
+    <div class="card">
+      <h2>Người dùng</h2>
+
+      <label>Mua 1 Vote Token (0.01 ETH)</label><br/>
+      <button id="buyTokenButton" disabled>Mua 1 Vote Token</button>
+      <p class="small">
+        Mỗi lần bấm gửi 0.01 ETH, nhận 1 DTVT. 1 DTVT = 1 lượt vote (11 cầu thủ).
+      </p>
+
+      <hr/>
+
+      <h3>Chọn đội hình 1-4-3-3</h3>
+      <p class="small">
+        Chọn 1 GK, 4 DEF, 3 MID, 3 ATT. Các ô đã lọc đúng vị trí.
+      </p>
+
+      <div class="position-grid">
+        <!-- GK -->
+        <div>
+          <div class="position-box-title">GK (Thủ môn)</div>
+          <select id="gkSelect">
+            <option value="">-- Chọn GK --</option>
+          </select>
+        </div>
+
+        <!-- DEF 4 ô -->
+        <div>
+          <div class="position-box-title">DEF 1</div>
+          <select id="def1Select">
+            <option value="">-- Chọn DEF 1 --</option>
+          </select>
+        </div>
+        <div>
+          <div class="position-box-title">DEF 2</div>
+          <select id="def2Select">
+            <option value="">-- Chọn DEF 2 --</option>
+          </select>
+        </div>
+        <div>
+          <div class="position-box-title">DEF 3</div>
+          <select id="def3Select">
+            <option value="">-- Chọn DEF 3 --</option>
+          </select>
+        </div>
+        <div>
+          <div class="position-box-title">DEF 4</div>
+          <select id="def4Select">
+            <option value="">-- Chọn DEF 4 --</option>
+          </select>
+        </div>
+
+        <!-- MID 3 ô -->
+        <div>
+          <div class="position-box-title">MID 1</div>
+          <select id="mid1Select">
+            <option value="">-- Chọn MID 1 --</option>
+          </select>
+        </div>
+        <div>
+          <div class="position-box-title">MID 2</div>
+          <select id="mid2Select">
+            <option value="">-- Chọn MID 2 --</option>
+          </select>
+        </div>
+        <div>
+          <div class="position-box-title">MID 3</div>
+          <select id="mid3Select">
+            <option value="">-- Chọn MID 3 --</option>
+          </select>
+        </div>
+
+        <!-- ATT 3 ô -->
+        <div>
+          <div class="position-box-title">ATT 1</div>
+          <select id="att1Select">
+            <option value="">-- Chọn ATT 1 --</option>
+          </select>
+        </div>
+        <div>
+          <div class="position-box-title">ATT 2</div>
+          <select id="att2Select">
+            <option value="">-- Chọn ATT 2 --</option>
+          </select>
+        </div>
+        <div>
+          <div class="position-box-title">ATT 3</div>
+          <select id="att3Select">
+            <option value="">-- Chọn ATT 3 --</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="voteButton" disabled>Gửi phiếu vote</button>
+      <div id="userStatus" class="status"></div>
+    </div>
+  </div>
+
+  <!-- Admin -->
+  <div class="card">
+    <h2>Admin</h2>
+    <p class="small">
+      Chỉ ví owner của contract mới gọi được các hàm này.
+    </p>
+
+    <label>1️⃣ Xác nhận nhiệm vụ Facebook cho user</label>
+    <input id="adminUserAddress" placeholder="Địa chỉ user cần setTaskCompleted" />
+    <label>
+      Trạng thái:
+      <select id="adminTaskStatus">
+        <option value="true">Hoàn thành (true)</option>
+        <option value="false">Chưa hoàn thành (false)</option>
+      </select>
+    </label>
+    <button id="setTaskButton" disabled>Admin: Xác nhận nhiệm vụ</button>
+
+    <hr/>
+
+    <label>2️⃣ Rút toàn bộ phí (ETH) trong contract về địa chỉ:</label>
+    <input id="withdrawToAddress" placeholder="Địa chỉ nhận ETH (mặc định: ví owner)" />
+    <button id="withdrawButton" disabled>Admin: Rút phí</button>
+
+    <div id="adminStatus" class="status"></div>
+  </div>
+</div>
+
+<!-- 1) Thư viện ethers local -->
+<script src="ethers.umd.min.js"></script>
+
+<!-- 2) Code DApp -->
+<script src="app.js"></script>
+</body>
+</html>
