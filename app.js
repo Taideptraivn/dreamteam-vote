@@ -1,6 +1,6 @@
 // Địa chỉ contract DreamTeamVote trên Sepolia
 // 👉 NHỚ SỬA LẠI SAU KHI DEPLOY HỢP ĐỒNG MỚI
-const CONTRACT_ADDRESS = "PASTE_NEW_CONTRACT_ADDRESS_HERE";
+const CONTRACT_ADDRESS = "0x058a918bC848FD3b6A0b3e270779C82EB193DeD7";
 
 // ABI rút gọn, chỉ các hàm giao diện cần dùng
 const CONTRACT_ABI = [
@@ -407,3 +407,4 @@ window.addEventListener("load", () => {
   withdrawButton.addEventListener("click", adminWithdraw);
   refreshLeadersButton.addEventListener("click", loadLeaderboard);
 });
+
