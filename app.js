@@ -1,6 +1,6 @@
 // Địa chỉ contract DreamTeamVote trên Sepolia
 // 👉 NHỚ SỬA LẠI SAU KHI DEPLOY HỢP ĐỒNG MỚI
-const CONTRACT_ADDRESS = "0x058a918bC848FD3b6A0b3e270779C82EB193DeD7";
+const CONTRACT_ADDRESS = "PASTE_NEW_CONTRACT_ADDRESS_HERE";
 
 // ABI rút gọn, chỉ các hàm giao diện cần dùng
 const CONTRACT_ABI = [
@@ -10,7 +10,8 @@ const CONTRACT_ABI = [
   "function owner() view returns (address)",
   "function taskCompleted(address user) view returns (bool)",
   "function setTaskCompleted(address user, bool completed)",
-  "function completeTask(string phone)",                // <-- hàm mới
+  "function completeTask(string phone)",
+  "function totalVotesPerPlayer(uint256 id) view returns (uint256)",
   "function withdrawFees(address payable to)"
 ];
 
@@ -133,6 +134,9 @@ const withdrawToAddress = document.getElementById("withdrawToAddress");
 const withdrawButton = document.getElementById("withdrawButton");
 const adminStatus = document.getElementById("adminStatus");
 
+const leaderboardDiv = document.getElementById("leaderboard");
+const refreshLeadersButton = document.getElementById("refreshLeadersButton");
+
 // Selects
 const gkSelect  = document.getElementById("gkSelect");
 const def1Select = document.getElementById("def1Select");
@@ -193,11 +197,13 @@ async function connectWallet() {
     setTaskButton.disabled = false;
     withdrawButton.disabled = false;
     completeTaskButton.disabled = false;
+    refreshLeadersButton.disabled = false;
 
     contractOwner = await contract.owner();
     walletInfo.textContent += "\nOwner contract: " + contractOwner;
 
     await refreshInfo();
+    await loadLeaderboard();
   } catch (err) {
     console.error(err);
     walletInfo.textContent = "Lỗi khi kết nối: " + (err.message || err);
@@ -217,6 +223,56 @@ async function refreshInfo() {
   } catch (err) {
     console.error(err);
     userStatus.textContent = "Lỗi khi cập nhật thông tin: " + (err.message || err);
+  }
+}
+
+// ===== Load kết quả tạm thời (leaderboard) =====
+async function loadLeaderboard() {
+  if (!contract) return;
+  try {
+    leaderboardDiv.textContent = "Đang tải kết quả...";
+
+    const promises = PLAYERS.map(async p => {
+      const v = await contract.totalVotesPerPlayer(p.id);
+      const votes = v.toNumber ? v.toNumber() : parseInt(v);
+      return { ...p, votes };
+    });
+
+    const withVotes = await Promise.all(promises);
+
+    function topByPos(pos, count) {
+      return withVotes
+        .filter(p => p.pos === pos)
+        .sort((a, b) => {
+          if (b.votes !== a.votes) return b.votes - a.votes;
+          return a.id - b.id;
+        })
+        .slice(0, count);
+    }
+
+    const topGK  = topByPos("GK", 1);
+    const topDEF = topByPos("DEF", 4);
+    const topMID = topByPos("MID", 3);
+    const topATT = topByPos("ATT", 3);
+
+    function renderGroup(title, list) {
+      if (!list.length || list.every(p => p.votes === 0)) {
+        return `<div class="lb-group"><b>${title}:</b> Chưa có phiếu nào.</div>`;
+      }
+      const items = list
+        .map(p => `${p.name} (${p.club}) - ID ${p.id} — ${p.votes} phiếu`)
+        .join("<br/>");
+      return `<div class="lb-group"><b>${title}:</b><br/>${items}</div>`;
+    }
+
+    leaderboardDiv.innerHTML =
+      renderGroup("GK dẫn đầu", topGK) +
+      renderGroup("Top 4 DEF", topDEF) +
+      renderGroup("Top 3 MID", topMID) +
+      renderGroup("Top 3 ATT", topATT);
+  } catch (err) {
+    console.error(err);
+    leaderboardDiv.textContent = "Lỗi khi tải kết quả: " + (err.message || err);
   }
 }
 
@@ -291,6 +347,7 @@ async function sendVote() {
     await tx.wait();
     userStatus.textContent = "Vote thành công! Tx: " + tx.hash;
     await refreshInfo();
+    await loadLeaderboard();
   } catch (err) {
     console.error(err);
     userStatus.textContent = "Lỗi khi vote: " + (err.error?.message || err.message || err);
@@ -348,4 +405,5 @@ window.addEventListener("load", () => {
   voteButton.addEventListener("click", sendVote);
   setTaskButton.addEventListener("click", adminSetTask);
   withdrawButton.addEventListener("click", adminWithdraw);
+  refreshLeadersButton.addEventListener("click", loadLeaderboard);
 });
